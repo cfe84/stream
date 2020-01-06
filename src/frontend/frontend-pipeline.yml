@@ -1,0 +1,53 @@
+# Docker
+# Build a Docker image
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+  branches:
+    include:
+      - master
+  paths:
+    include:
+      - src/frontend/*
+      - src/common/*
+      - chart/*
+      - src/Frontend.Dockerfile
+
+resources:
+  - repo: self
+
+variables:
+  tag: "$(Build.BuildId)"
+
+stages:
+  - stage: Build
+    displayName: Build image
+    jobs:
+      - job: Build
+        displayName: Build
+        pool:
+          vmImage: "ubuntu-latest"
+        steps:
+          - task: Docker@2
+            displayName: Build docker image
+            inputs:
+              command: buildAndPush
+              containerRegistry: ACR
+              dockerfile: "src/Frontend.Dockerfile"
+              buildContext: "src"
+              repository: roster-frontend
+              tags: |
+                $(tag)
+          - task: HelmInstaller@1
+            displayName: Install helm
+          - task: HelmDeploy@0
+            displayName: Login to Kubernetes
+            inputs:
+              command: login
+              connectionType: Kubernetes Service Connection
+              kubernetesServiceConnection: k8s
+          - task: Bash@3
+            displayName: Push to kubernetes using helm chart
+            inputs:
+              targetType: inline
+              script: /bin/bash -c "helm template chart --set frontendTag=$(tag) | kubectl apply -f -"

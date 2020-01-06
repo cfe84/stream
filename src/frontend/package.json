@@ -1,0 +1,94 @@
+{
+  "name": "roster-frontend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "watch": {
+    "build": {
+      "patterns": [
+        "src",
+        "static",
+        "style"
+      ],
+      "extensions": "html,sass,scss,js,ts,tsx"
+    },
+    "test": {
+      "patterns": [
+        "src",
+        "test"
+      ],
+      "extensions": "js,ts,tsx"
+    },
+    "sass": {
+      "patterns": [
+        "style"
+      ],
+      "extensions": "sass,scss"
+    },
+    "static": {
+      "patterns": [
+        "static"
+      ],
+      "extensions": "html,js,css"
+    },
+    "webpack": {
+      "patterns": [
+        "src"
+      ],
+      "extensions": "ts,tsx"
+    }
+  },
+  "scripts": {
+    "clean": "rm -r dist/",
+    "test": "mocha --require ts-node/register --require mock-local-storage ./src/html/IntrinsicElements.ts ./test/**/*.ts",
+    "sass": "sass style/style.sass dist/style.css",
+    "static": "mkdir -p dist && cp -r static/* dist/",
+    "webpack": "npx webpack",
+    "webpack-electron": "npx webpack --config webpack-electron.config.js",
+    "build": "npm run common-cp && npm run static && npm run sass && npm run webpack",
+    "build-for-electron": "npm run common-cp && npm run static && npm run sass && npm run webpack-electron",
+    "watch": "npm-watch",
+    "common-cp": "npm run --prefix ../common cp"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cfe84/roster.git"
+  },
+  "author": "Charles Feval",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cfe84/roster/issues"
+  },
+  "homepage": "https://github.com/cfe84/roster#readme",
+  "devDependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.25",
+    "@fortawesome/free-brands-svg-icons": "^5.11.2",
+    "@fortawesome/free-regular-svg-icons": "^5.11.2",
+    "@fortawesome/free-solid-svg-icons": "^5.11.2",
+    "@types/markdown-it": "0.0.9",
+    "@types/marked": "^0.7.2",
+    "@types/mocha": "^5.2.7",
+    "@types/moment": "^2.13.0",
+    "@types/node": "^12.12.17",
+    "@types/socket.io-client": "^1.4.32",
+    "bootstrap": "^4.4.0",
+    "mocha": "^6.2.2",
+    "mock-local-storage": "^1.1.11",
+    "moment-locales-webpack-plugin": "^1.1.2",
+    "npm-watch": "^0.6.0",
+    "sass": "^1.23.7",
+    "should": "^13.2.3",
+    "testdouble": "^3.12.4",
+    "ts-loader": "^6.2.1",
+    "ts-node": "^8.5.4",
+    "typescript": "^3.7.2",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10"
+  },
+  "dependencies": {
+    "crypto-js": "^3.1.9-1",
+    "marked": "^0.7.0",
+    "moment": "^2.24.0",
+    "socket.io-client": "^2.3.0"
+  }
+}
