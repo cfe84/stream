@@ -12,6 +12,7 @@ import { GenericController } from "../baseComponents/GenericController";
 import { NoteComponentFactory } from "./NoteComponentFactory";
 import { NoteStoreAdapter } from "./NoteStoreAdapter";
 import { NoteEventFactory } from "./NoteEventFactory";
+import { Button } from "../baseComponents";
 
 export interface NotesControllerDependencies {
   uiContainer: UIContainer,
@@ -33,36 +34,17 @@ export class NotesController {
     })
   }
 
-  public getNotesListAsync = async (): Promise<ListComponent<Note>> =>
-    this.genericController.getListAsync({
-      entityGenerator: () => new Note()
-    })
+  public getNotesListAsync = async (): Promise<ListComponent<Note>> => {
+    const list = await this.genericController.getListAsync({});
+    return <div>
+      <Button onclick={() => this.genericController.mountCreate(() => new Note())} text="Add" icon="plus" />
+      {list}
+    </div>
+  }
 
   public displayNotesListAsync = async (): Promise<void> => {
     const component = await this.getNotesListAsync();
     this.deps.uiContainer.mount(component);
   }
 
-  public displayNewNote(): void {
-    const addNote = (note: Note) => {
-      this.deps.eventBus.publishAsync(new NoteCreatedEvent(note))
-        .then(() => this.deps.uiContainer.unmountCurrent());
-    }
-    const now = new Date(Date.now());
-    const note: Note = {
-      id: GUID.newGuid(),
-      content: "",
-      date: now,
-      createdDate: now,
-      lastEditDate: now,
-    }
-    const component = <NoteEditor
-      actionName="Create"
-      note={note}
-      onCancel={this.deps.uiContainer.unmountCurrent}
-      onValidate={addNote}
-    >
-    </NoteEditor>;
-    this.deps.uiContainer.mount(component);
-  }
 }
