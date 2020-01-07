@@ -125,8 +125,7 @@ export class IndexedDBStore implements IWholeStore {
   }
 
   public getNotesAsync = async (): Promise<Note[]> =>
-    (await this.db.getAllAsync<Note>(OBJECTSTORE_NOTES))
-      .sort((a, b) => (a.date.getTime() > b.date.getTime() ? -1 : 1));
+    (await this.db.getAllAsync<Note>(OBJECTSTORE_NOTES));
 
 
   public createNoteAsync = async (note: Note): Promise<void> => {

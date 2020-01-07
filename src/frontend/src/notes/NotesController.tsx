@@ -35,7 +35,9 @@ export class NotesController {
   }
 
   public getNotesListAsync = async (): Promise<ListComponent<Note>> => {
-    const list = await this.genericController.getListAsync({});
+    const list = (await this.genericController.getListAsync({
+      sort: (a, b) => (a.date.getTime() > b.date.getTime() ? -1 : 1)
+    }));
     return <div>
       <Button onclick={() => this.genericController.mountCreate(() => new Note())} text="Add" icon="plus" />
       {list}
