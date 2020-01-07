@@ -5,7 +5,7 @@ import { EventBus, IEventFactory } from "../../lib/common/events";
 import { ConfirmationDialog } from "./ConfirmationDialog";
 import { ITypedEvent } from "../../lib/common/events";
 import { IEntity } from "../../lib/common/entities/IEntity";
-import { IComponentFactory } from "./IComponentFactory";
+import { IComponentFactory, IListComponent } from "./IComponentFactory";
 
 export interface GenericControllerDependencies<T> {
   db: IStore<T>,
@@ -30,7 +30,7 @@ export class GenericController<EntityType extends IEntity>{
 
   constructor(private deps: GenericControllerDependencies<EntityType>) { }
 
-  public getListAsync = async (options: GetListOptions<EntityType>): Promise<ListComponent<EntityType>> => {
+  public getListAsync = async (options: GetListOptions<EntityType>): Promise<IListComponent<EntityType>> => {
     let elements = (await this.deps.db.getAsync());
     if (options.filter) {
       elements = elements.filter(options.filter);
@@ -38,15 +38,27 @@ export class GenericController<EntityType extends IEntity>{
     if (options.sort) {
       elements = elements.sort(options.sort);
     }
-    const listComponent: ListComponent<EntityType> = <List
-      title={options.title}
-      titleIcon={options.icon}
-      elements={elements}
-      onAddClicked={options.entityGenerator ? (() => { this.mountCreate(options.entityGenerator as EntityGenerator<EntityType>) }) : undefined}
-      onEditClicked={this.mountEdit}
-      onClicked={(entity: EntityType) => { this.mountView(entity) }}
-      elementDisplay={this.deps.componentFactory.createListItemComponent}
-    > </List>;
+    const onAdd = options.entityGenerator ? (() => { this.mountCreate(options.entityGenerator as EntityGenerator<EntityType>) }) : undefined;
+    let listComponent: IListComponent<EntityType>;
+    if (this.deps.componentFactory.createListItemComponent) {
+      listComponent = <List
+        title={options.title}
+        titleIcon={options.icon}
+        elements={elements}
+        onAddClicked={onAdd}
+        onEditClicked={this.mountEdit}
+        onClicked={(entity: EntityType) => { this.mountView(entity) }}
+        elementDisplay={this.deps.componentFactory.createListItemComponent}
+      > </List>;
+      // } else if (this.deps.componentFactory.createListComponent) {
+      //   listComponent = this.deps.componentFactory.createListComponent(elements,
+      //     onAdd,
+      //     onEdit,
+      //     onClicked
+      //   )
+    } else {
+      throw Error("No list specified")
+    }
 
     const createdSubscription = this.deps.eventBus.subscribe(this.deps.eventFactory.createdEventType, (evt: ITypedEvent<EntityType>) => listComponent.addItemAsync(evt.entity));
     const deletedSubscription = this.deps.eventBus.subscribe(this.deps.eventFactory.deletedEventType, (evt: ITypedEvent<EntityType>) => listComponent.removeItemAsync(evt.entity));
