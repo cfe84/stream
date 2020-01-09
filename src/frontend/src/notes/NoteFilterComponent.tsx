@@ -14,7 +14,7 @@ export class NoteFilterComponent extends Component {
 
   private onFilterChanged = (value: string): void => {
     this.props.onFilterChanged(
-      (note => note.content.toLowerCase().indexOf(value) >= 0));
+      (note => note.content.toLowerCase().indexOf(value.toLowerCase()) >= 0));
   }
 
   render() {
