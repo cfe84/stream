@@ -4,6 +4,8 @@ import { Component, UIElement } from "../html";
 import { NoteReader, NoteReaderComponent } from "./NoteReaderComponent";
 import { NoteEditor } from "./NoteEditorComponent";
 import { NotesListItem } from "./NotesListItemComponent";
+import { FilterFunction } from "../baseComponents/GenericController";
+import { NoteFilter } from "./NoteFilterComponent";
 
 export class NoteComponentFactory implements IComponentFactory<Note> {
   createListItemComponent = (element: Note): Component =>
@@ -30,6 +32,9 @@ export class NoteComponentFactory implements IComponentFactory<Note> {
       onCancel,
       onValidate,
       actionName: "Create"
-    })
-
+    });
+  createListFilterComponent = (onFilterChanged: (filter: FilterFunction<Note>) => void): Component =>
+    NoteFilter({
+      onFilterChanged
+    });
 }
