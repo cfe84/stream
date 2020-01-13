@@ -18,14 +18,19 @@ export class dateUtils {
       return ""
     }
     const today = new Date();
-    if (moment(today).diff(date, 'days') < 6) {
-      return moment(date).format("dddd, h:mmA")
-    } else if (date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear()) {
-      return moment(date).format("dddd D, h:mmA");
-    } else if (date.getFullYear() === today.getFullYear()) {
-      return moment(date).format("MMMM DD, hA");
-    } else {
-      return moment(date).format("LLLL");
+    try {
+      if (moment(today).diff(date, 'days') < 6) {
+        return moment(date).format("dddd, h:mmA")
+      } else if (date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear()) {
+        return moment(date).format("dddd D, h:mmA");
+      } else if (date.getFullYear() === today.getFullYear()) {
+        return moment(date).format("MMMM DD, hA");
+      } else {
+        return moment(date).format("LLLL");
+      }
+    } catch (error) {
+      console.log(`Error formatting date for ${JSON.stringify(date)}: ${error}`)
+      return `${date}`;
     }
   }
 

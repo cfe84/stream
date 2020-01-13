@@ -1,6 +1,7 @@
 import { Note } from "../notes";
 import { IWholeStore } from "../storage/IWholeStore";
 import { promises as fsAsync, default as fs } from "fs";
+import { JsonSerializer } from "../../lib/common/utils/JsonSerializer";
 
 class MyArray<T> {
   [index: string]: T
@@ -12,7 +13,7 @@ class Db {
     return JSON.stringify(this);
   }
   public static deserialize(serializedStore: string): Db {
-    const deserializedDb = JSON.parse(serializedStore) as Db;
+    const deserializedDb = JsonSerializer.deserialize(serializedStore) as Db;
     Object.setPrototypeOf(deserializedDb, new Db());
     return deserializedDb;
   }
