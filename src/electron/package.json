@@ -5,7 +5,7 @@
   "main": "dist/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "pack": "mkdir -p ./dist/frontend/ && cp -r ../frontend/dist/* ./dist/frontend && tsc",
+    "pack": "./package/pack.sh",
     "bnr": "npm run build && npm run start",
     "start": "electron .",
     "frontend": "npm run --prefix ../frontend build-for-electron",

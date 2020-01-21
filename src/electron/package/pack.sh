@@ -68,6 +68,7 @@ fi
 mkdir -p $OUTPUT
 
 if [ "$PLATFORM" = "darwin" ]; then
+  cp ./stream.icns $CACHE/$FOLDERNAME/Electron.app/Contents/Resources/electron.icns
   cp -r $CACHE/$FOLDERNAME/Electron.app/ $OUTPUT
 fi
 
