@@ -55,7 +55,8 @@ fi
 unzip $CACHE/$FILENAME -d $CACHE/$FOLDERNAME > /dev/null
 
 if [ "$PLATFORM" = "darwin" ]; then
-  RESOURCES_FOLDER=$CACHE/$FOLDERNAME/Electron.app/Contents/Resources
+  CONTENTS_FOLDER=$CACHE/$FOLDERNAME/Electron.app/Contents
+  RESOURCES_FOLDER=$CONTENTS_FOLDER/Resources
   TARGET_APP_DIRECTORY=$RESOURCES_FOLDER/app
   mkdir $TARGET_APP_DIRECTORY
   cp -r $SOURCE_APP_DIRECTORY $TARGET_APP_DIRECTORY
@@ -68,7 +69,9 @@ fi
 mkdir -p $OUTPUT
 
 if [ "$PLATFORM" = "darwin" ]; then
-  cp ./stream.icns $CACHE/$FOLDERNAME/Electron.app/Contents/Resources/electron.icns
+  cp ./stream.icns $RESOURCES_FOLDER/electron.icns
+  cp ./package/Info.plist $CONTENTS_FOLDER/Info.plist
+  mv $CONTENTS_FOLDER/MacOS/Electron $CONTENTS_FOLDER/MacOS/Stream
   cp -r $CACHE/$FOLDERNAME/Electron.app/ $OUTPUT
 fi
 
