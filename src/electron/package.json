@@ -8,8 +8,9 @@
     "pack": "./package/pack.sh",
     "bnr": "npm run build && npm run start",
     "start": "electron .",
-    "frontend": "npm run --prefix ../frontend build-for-electron",
-    "build": "npm run frontend && npm run pack",
+    "build-frontend": "npm run --prefix ../frontend build-for-electron",
+    "build-electron": "tsc",
+    "build": "npm run build-frontend && npm run build-electron && npm run pack",
     "package-win64": "electron-packager dist/ roster --platform=win32 --arch=x64 --overwrite",
     "package-mac64": "electron-packager dist roster --platform=darwin --arch=x64 --overwrite"
   },
