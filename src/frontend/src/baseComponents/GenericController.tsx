@@ -1,11 +1,11 @@
 import { ListComponent, List } from "./ListComponent";
 import { IStore } from "../storage/IStore";
-import { Component, UIContainer } from "../html";
+import { Component, UIContainer, UIElement } from "../html";
 import { EventBus, IEventFactory } from "../../lib/common/events";
 import { ConfirmationDialog } from "./ConfirmationDialog";
 import { ITypedEvent } from "../../lib/common/events";
 import { IEntity } from "../../lib/common/entities/IEntity";
-import { IComponentFactory, IListComponent } from "./IComponentFactory";
+import { IComponentFactory } from "./IComponentFactory";
 
 export interface GenericControllerDependencies<T> {
   db: IStore<T>,
@@ -30,14 +30,15 @@ interface GetListOptions<T> {
 }
 
 export const GENERIC_CONTROLLER_EVENT_TYPES = {
-  ENTITY_UPDATED: "ENTITY_UPDATED"
+  ENTITY_UPDATED: "ENTITY_UPDATED",
+  DISPLAY_OPTION_CHANGED: "DISPLAY_OPTION_CHANGED"
 }
 
 export class GenericController<EntityType extends IEntity>{
 
   constructor(private deps: GenericControllerDependencies<EntityType>) { }
 
-  public getListAsync = async (options: GetListOptions<EntityType>): Promise<IListComponent<EntityType>> => {
+  public getListAsync = async (options: GetListOptions<EntityType>): Promise<ListComponent<EntityType>> => {
     let elements = (await this.deps.db.getAsync());
     let filter = options.filter ?? (() => true);
     elements = elements.filter(filter);
@@ -45,7 +46,7 @@ export class GenericController<EntityType extends IEntity>{
       elements = elements.sort(options.sort);
     }
     const onAdd = options.entityGenerator ? (() => { this.mountCreate(options.entityGenerator as EntityGenerator<EntityType>) }) : undefined;
-    let listComponent: IListComponent<EntityType>;
+    let listComponent: ListComponent<EntityType>;
     if (this.deps.componentFactory.createListItemComponent) {
       listComponent = <List
         elements={elements}
@@ -69,7 +70,8 @@ export class GenericController<EntityType extends IEntity>{
       updatedSubscription.unsubscribe();
     }
 
-    let resultComponent = listComponent;
+    let filterComponent: Component | string;
+    let viewControlComponent: Component | string;
     if (this.deps.componentFactory.createListFilterComponent) {
       const onFilterChange = (filter: FilterFunction<EntityType>) => {
         Promise.all(
@@ -77,17 +79,34 @@ export class GenericController<EntityType extends IEntity>{
             (element) => listComponent.setItemVisibilityAsync(element, filter(element))))
           .then(() => { })
       }
-      const filterComponent = this.deps.componentFactory.createListFilterComponent(onFilterChange, options.filterComponentOptions);
-      const titleIconClass = `fa${options.iconClass || ""} fa-${options.icon}`;
-      const titleIconComponent = options.icon ? <i class={titleIconClass}></i> : "";
-      const titleComponent = options.title ? <h3 class="text-center">{titleIconComponent} {options.title}</h3> : "";
-      resultComponent = <div>
-        {titleComponent}
-        {filterComponent}
-        {resultComponent}
-      </div>
+      filterComponent = this.deps.componentFactory.createListFilterComponent(onFilterChange, options.filterComponentOptions);
+    } else {
+      filterComponent = "";
     }
 
+    if (!!this.deps.componentFactory.createListViewControlComponent) {
+      const onViewControlChanged = (options: any) => {
+        Promise.all(
+          listComponent.getListItemComponents().map(
+            (item) =>
+              item.on(GENERIC_CONTROLLER_EVENT_TYPES.DISPLAY_OPTION_CHANGED, options)
+          )
+        ).then(() => { })
+      };
+      viewControlComponent = this.deps.componentFactory.createListViewControlComponent(onViewControlChanged);
+    } else {
+      viewControlComponent = "";
+    }
+
+    const titleIconClass = `fa${options.iconClass || ""} fa-${options.icon}`;
+    const titleIconComponent = options.icon ? <i class={titleIconClass}></i> : "";
+    const titleComponent = options.title ? <h3 class="text-center">{titleIconComponent} {options.title}</h3> : "";
+    const resultComponent = <div>
+      {titleComponent}
+      {filterComponent}
+      {viewControlComponent}
+      {listComponent}
+    </div>
     return resultComponent;
   }
 

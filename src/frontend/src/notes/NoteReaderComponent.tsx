@@ -32,7 +32,7 @@ export class NoteReaderComponent extends Component {
     </div>;
   }
 
-  on(evtType: string, data: any) {
+  on = (evtType: string, data: any) => {
     if (evtType === GENERIC_CONTROLLER_EVENT_TYPES.ENTITY_UPDATED) {
       this.props.note = data;
     }

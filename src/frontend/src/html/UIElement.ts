@@ -32,6 +32,7 @@ export class UIElement {
           element.setProperty(name, this.props[name]);
         }
         else {
+          console.log(`Updating ${name} to ${this.props[name]}`)
           element.setAttribute(name, this.props[name]);
         }
       });

@@ -32,7 +32,9 @@ export abstract class Component {
 
   public onmounted() { }
 
-  public on(eventType: string, eventData: any) { }
+  public on = (eventType: string, eventData: any) => {
+    console.log(`Event was sent to component but caught by Component class ${eventType}: ${eventData}`)
+  }
 
   abstract render(): UIElement | Promise<UIElement>;
 }

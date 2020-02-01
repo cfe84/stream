@@ -1,18 +1,19 @@
 import { IComponentFactory } from "../baseComponents/IComponentFactory";
 import { Note } from ".";
-import { Component, UIElement } from "../html";
-import { NoteReader, NoteReaderComponent } from "./NoteReaderComponent";
+import { Component } from "../html";
+import { NoteReader } from "./NoteReaderComponent";
 import { NoteEditor } from "./NoteEditorComponent";
 import { NotesListItem } from "./NotesListItemComponent";
 import { FilterFunction } from "../baseComponents/GenericController";
 import { NoteFilter } from "./NoteFilterComponent";
+import { NoteViewControl } from "./NoteViewControlComponent";
 
 export class NoteComponentFactory implements IComponentFactory<Note> {
   createListItemComponent = (element: Note): Component =>
     NotesListItem({
       note: element
     });
-  createEditComponent = (element: Note, onCancel: () => void, onValidate: (entity: Note) => void, onDelete: (entity: Note) => void): Component =>
+  createEditComponent = (element: Note, onCancel: () => void, onValidate: (entity: Note) => void): Component =>
     NoteEditor({
       note: element,
       onCancel,
@@ -37,4 +38,8 @@ export class NoteComponentFactory implements IComponentFactory<Note> {
     NoteFilter({
       onFilterChanged
     });
+  createListViewControlComponent = (onViewControlChanged: (options: any) => void): Component =>
+    NoteViewControl({
+      onViewControlChanged
+    })
 }

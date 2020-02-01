@@ -17,9 +17,11 @@ export interface ListProps<T extends IEntity> {
 interface ListItemReference<T extends IEntity> {
   value: T,
   component: ListItemComponent<T>;
+  elementDisplay: Component;
 }
 
 export class ListComponent<T extends IEntity> extends Component {
+
   constructor(private props: ListProps<T>) { super() }
 
   private listComponent?: UIElement;
@@ -28,7 +30,8 @@ export class ListComponent<T extends IEntity> extends Component {
   public addItemAsync = async (item: T): Promise<void> => {
     this.props.elements.push(item);
     if (this.listComponent) {
-      const listItemComponent = this.mapListItem(item);
+      const display = this.props.elementDisplay(item)
+      const listItemComponent = this.mapListItem(item, display);
       this.listComponent.props["children"].push(listItemComponent);
       await this.listComponent.updateNodeAsync();
     }
@@ -53,13 +56,13 @@ export class ListComponent<T extends IEntity> extends Component {
     }
   }
 
-  public setItemVisibilityAsync = async (item: T, visibile: boolean) => {
+  public setItemVisibilityAsync = async (item: T, visible: boolean) => {
     if (this.listItems) {
       const reference = this.listItems.find((itemInList) => itemInList.value === item);
       if (!reference) {
         throw Error("Item not found: " + JSON.stringify(item));
       } else {
-        await reference.component.setVisibilityAsync(visibile);
+        await reference.component.setVisibilityAsync(visible);
       }
     }
   }
@@ -70,10 +73,14 @@ export class ListComponent<T extends IEntity> extends Component {
 
   public render = (): UIElement => {
     this.listItems = this.props.elements
-      .map((item) => ({
-        value: item,
-        component: this.mapListItem(item)
-      }));
+      .map((item) => {
+        const display = this.props.elementDisplay(item);
+        return {
+          value: item,
+          component: this.mapListItem(item, display),
+          elementDisplay: display
+        }
+      });
 
     const addButton = this.props.onAddClicked ? <Button onclick={this.props.onAddClicked} icon="plus" text="Add" /> : ""
     const titleIconClass = `fa fa-${this.props.titleIcon}`;
@@ -90,14 +97,21 @@ export class ListComponent<T extends IEntity> extends Component {
     </div>;
   }
 
-  private mapListItem = (item: T): ListItemComponent<T> => {
+  private mapListItem = (item: T, elementDisplay: Component | UIElement): ListItemComponent<T> => {
     const onClicked = this.props.onClicked || ((elt: T) => { })
     const onEditClicked = this.props.onEditClicked || ((elt: T) => { })
     return new ListItemComponent<T>({
-      elementDisplay: this.props.elementDisplay(item),
+      elementDisplay,
       onClicked: () => onClicked(item),
       onEditClicked: () => onEditClicked(item)
     });
+  }
+  getListItemComponents(): Component[] {
+    if (!!this.listItems) {
+      return this.listItems.map(item => item.elementDisplay);
+    } else {
+      return [];
+    }
   }
 }
 

@@ -7,6 +7,7 @@ export interface SelectComponentProps {
   field?: string,
   class?: string,
   value?: string,
+  onchange?: (value: string) => void,
   values: any[]
 }
 
@@ -17,7 +18,7 @@ class OptionComponent extends Component {
 
   private element?: UIElement;
 
-  private getClass = () => "btn mr-1 " + (this.selected ? "btn-dark" : "btn-light");
+  private getClass = () => "btn " + (this.selected ? "btn-outline-dark" : "btn-outline-light");
 
   updateAsync = async (selected: boolean) => {
     this.selected = selected;
@@ -46,13 +47,16 @@ export class SelectComponent extends Component {
     const currentValue = this.props.value || ((this.props.object && this.props.field) ? (this.props.object as any)[this.props.field] : "");
     let currentlySelectedValue: OptionComponent;
     const onSelectedAsync = async (newlySelectedValue: OptionComponent) => {
+      this.props.value = newlySelectedValue.value;
       if (this.props.object && this.props.field) {
-        (this.props.object as any)[this.props.field] = newlySelectedValue.value;
-        this.props.value = newlySelectedValue.value;
+        (this.props.object as any)[this.props.field] = this.props.value;
       }
       await newlySelectedValue.updateAsync(true);
       await currentlySelectedValue.updateAsync(false);
       currentlySelectedValue = newlySelectedValue;
+      if (this.props.onchange) {
+        this.props.onchange(this.props.value as string);
+      }
     }
     const options = this.props.values.map(value => new OptionComponent(value, value === currentValue, onSelectedAsync));
     currentlySelectedValue = options.find((option) => option.value === currentValue) || options[0];
@@ -60,7 +64,7 @@ export class SelectComponent extends Component {
     const caption = <Caption caption={this.props.caption} />;
     const component = <div class={this.props.class || ""}>
       {caption.render()}
-      <p class="mb-3">{options}</p>
+      <div class="btn-group-sm">{options}</div>
     </div>
     return component;
   }

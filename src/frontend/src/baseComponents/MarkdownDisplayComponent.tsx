@@ -22,7 +22,7 @@ export class MarkdownDisplayComponent extends Component {
     const noteId = `content-${GUID.newGuid()}`;
     const script = `document.getElementById("${noteId}").innerHTML = "${parsedNote.replace(/"/gm, '\\"').replace(/\n/gm, "\\\n")}";`
     const caption = <Caption caption={this.props.caption}></Caption>;
-    const component = <div>
+    const component = <div class={this.props.class || ""}>
       {caption.render()}
       <p class="mb-1 display-markdown" id={noteId}>Loading. You shouldn't see this, this is a very bad sign.</p>
       <script>{script}</script>
