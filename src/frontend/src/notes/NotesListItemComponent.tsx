@@ -10,16 +10,18 @@ interface NotesListItemProps {
 class NotesListItemComponent extends Component {
   constructor(private props: NotesListItemProps) { super(); }
 
-  public render = (): UIElement => <div class="">
-    <div>
-      <span class="ml-auto small">{dateUtils.timeSpan(this.props.note.date)}</span>
-      <h4>{dateUtils.formatReadable(this.props.note.date)}</h4>
+  public render = (): UIElement => {
+    return <div class="">
+      <div>
+        <span class="ml-auto small">{dateUtils.timeSpan(this.props.note.date)}</span>
+        <h4>{dateUtils.formatReadable(this.props.note.date)}</h4>
+      </div>
+      <MarkdownDisplay
+        value={this.props.note.content.split("\n")[0] + "..."}
+        class=""
+      ></MarkdownDisplay>
     </div>
-    <MarkdownDisplay
-      value={this.props.note.content.split("\n")[0] + "..."}
-      class=""
-    ></MarkdownDisplay>
-  </div>
+  }
 }
 
 export const NotesListItem = (props: NotesListItemProps) => new NotesListItemComponent(props);

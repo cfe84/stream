@@ -23,7 +23,14 @@ interface GetListOptions<T> {
   sort?: SortFunction<T>;
   title?: string;
   icon?: string;
+  iconClass?: string;
   entityGenerator?: EntityGenerator<T>;
+  filterComponentOptions?: any;
+  onItemClicked?: (item: T) => void;
+}
+
+export const GENERIC_CONTROLLER_EVENT_TYPES = {
+  ENTITY_UPDATED: "ENTITY_UPDATED"
 }
 
 export class GenericController<EntityType extends IEntity>{
@@ -41,20 +48,12 @@ export class GenericController<EntityType extends IEntity>{
     let listComponent: IListComponent<EntityType>;
     if (this.deps.componentFactory.createListItemComponent) {
       listComponent = <List
-        title={options.title}
-        titleIcon={options.icon}
         elements={elements}
         onAddClicked={onAdd}
         onEditClicked={this.mountEdit}
-        onClicked={(entity: EntityType) => { this.mountView(entity) }}
+        onClicked={(entity: EntityType) => { if (options.onItemClicked) { options.onItemClicked(entity) } else { this.mountView(entity) } }}
         elementDisplay={this.deps.componentFactory.createListItemComponent}
       > </List>;
-      // } else if (this.deps.componentFactory.createListComponent) {
-      //   listComponent = this.deps.componentFactory.createListComponent(elements,
-      //     onAdd,
-      //     onEdit,
-      //     onClicked
-      //   )
     } else {
       throw Error("No list specified")
     }
@@ -78,8 +77,12 @@ export class GenericController<EntityType extends IEntity>{
             (element) => listComponent.setItemVisibilityAsync(element, filter(element))))
           .then(() => { })
       }
-      const filterComponent = this.deps.componentFactory.createListFilterComponent(onFilterChange);
+      const filterComponent = this.deps.componentFactory.createListFilterComponent(onFilterChange, options.filterComponentOptions);
+      const titleIconClass = `fa${options.iconClass || ""} fa-${options.icon}`;
+      const titleIconComponent = options.icon ? <i class={titleIconClass}></i> : "";
+      const titleComponent = options.title ? <h3 class="text-center">{titleIconComponent} {options.title}</h3> : "";
       resultComponent = <div>
+        {titleComponent}
         {filterComponent}
         {resultComponent}
       </div>
@@ -126,6 +129,7 @@ export class GenericController<EntityType extends IEntity>{
       (action) => this.mountDelete(action));
     const updateSubscription = this.deps.eventBus.subscribe(this.deps.eventFactory.updatedEventType, (evt: ITypedEvent<EntityType>) => {
       if (evt.entity.id === entity.id) {
+        component.on(GENERIC_CONTROLLER_EVENT_TYPES.ENTITY_UPDATED, evt.entity)
         this.deps.uiContainer.rerenderIfCurrent(component);
       }
     });

@@ -3,11 +3,12 @@ import { Note } from "./Note";
 import { MarkdownDisplay } from "../baseComponents/MarkdownDisplayComponent";
 import { DateDisplay, Button, PageTitle } from "../baseComponents";
 import { dateUtils } from "../utils/dateUtils";
+import { GenericController, GENERIC_CONTROLLER_EVENT_TYPES } from "../baseComponents/GenericController";
 
 interface NoteReaderProps {
   note: Note,
   onEdit: ((note: Note) => void),
-  onDelete: (() => void),
+  onDelete: ((note: Note) => void),
   onBack: (() => void)
 }
 
@@ -26,9 +27,15 @@ export class NoteReaderComponent extends Component {
       {markdownDisplay.render()}
       <span class="d-flex">
         <Button type="primary" onclick={() => this.props.onEdit(note)} icon="pen" text="Edit" />
-        <Button type="delete" class="ml-auto" onclick={this.props.onDelete} icon="trash" text="Delete" />
+        <Button type="delete" class="ml-auto" onclick={() => this.props.onDelete(note)} icon="trash" text="Delete" />
       </span>
     </div>;
+  }
+
+  on(evtType: string, data: any) {
+    if (evtType === GENERIC_CONTROLLER_EVENT_TYPES.ENTITY_UPDATED) {
+      this.props.note = data;
+    }
   }
 
 }
